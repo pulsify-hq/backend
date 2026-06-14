@@ -1,14 +1,12 @@
-const{v4:uuidv4} = require('uuid');
 const supabase = require('./db');
 
-async function createMonitor(userId,name,url){
-  code = uuidv4();  
+async function createMonitor(userId,name,url){ 
   const {data,err} = await supabase
   .from('monitors')
   .insert([
-    {id:code, userId:userId, server_name:name url:url}
+    {userId:userId, server_name:name url:url}
   ]);
-  createJob(id=code, url=url)
+  createJob(id=data.id, active=active, url=url)
   if(err){
     console.error(err)
   }
@@ -19,7 +17,16 @@ async function updateMonitorById(blob){
   .from('monitors')
   .select('*')
   .update({'name', blob['email'],
-    'url', blob['url']})
+    'url', blob['url'], 'active', blob['active']})
+  .eq('id', blob['Id']);
+  return data
+}
+
+async function updateMonitorStatusById(blob){
+  const {data,err} = await supabase
+  .from('monitors')
+  .select('*')
+  .update({'statusCode', blob['statusCode'],'lastPingCheck', blob['lastCheck'], 'report', blob['report']})
   .eq('id', blob['Id']);
   return data
 }
@@ -40,4 +47,4 @@ async function deleteMonitorById(blob){
 }
 
 
-module.exports = {createMonitor,updateMonitorById,deleteMonitorById};
+module.exports = {createMonitor, updateMonitorById, deleteMonitorById, updateMonitorStatusById};

@@ -1,4 +1,4 @@
-import {createLog} from ./models/monitorLogModel.js;
+import {createLog} from ./models/monitorModel.js;
 
 function ping(url,id){
   try{
@@ -7,14 +7,20 @@ function ping(url,id){
     const result = await res.json();
     let stop = date.now()
     let responseTime = stop - start
-    if (result['res'].toLower() === 'True'){
+    if (result['active'].toLower() === 'True'){
       let report =  'server active'
-    }else if(responseTime > 2000){
+    }if(responseTime > 2000){
       let report =  'server slept'
-    }else{
+    }if(result['active'].toLower() === 'True'){
       let report =  'server inactive'
     }
-    createLog(monitorId=id, responseTime=responseTime, report=report, statusCode=result['statusCode'])
+    blob = {
+      'id':id,
+      'report':report,
+      'statusCode':result['statusCode'],
+      'lastPingCheck':Date.now()
+    }
+    updateMonitorStatusById(blob)
   } catch(err){
     err
   }

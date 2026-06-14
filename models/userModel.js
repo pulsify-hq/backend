@@ -1,13 +1,12 @@
-const{v4:uuidv4} = require('uuid');
 const supabase = require('./db');
 
 async function createUser(name,email,password){
-  code = uuidv4();
   const {data,err} = await supabase
   .from('users')
   .insert([
-    {id:code, name:name, email:email, password:password}
+    {name:name, email:email, password:password}
   ]);
+  return {data.id}
   if(err){
     console.error(err)
   }
@@ -18,24 +17,33 @@ async function getUserByEmail(blob){
   .from('users')
   .select('*')
   .eq('email', blob);
-  return data
+  return {data}
 }
 
 async function getUserById(blob){
   const {data,err} = await supabase
   .from('users')
   .select('*')
-  .eq('id', blob);
-  return data
+  .eq('id', blob['id']);
+  return {data}
 }
 
 async function updateUserById(blob){
   const {data,err} = await supabase
   .from('users')
   .select('*')
-  .update('email', blob['email'])
+  .update({'email', blob['email'], 'name', blob['name']})
   .eq('id', blob['Id']);
   return data
+}
+
+async function updateUserPasswordById(blob){
+  const {data,err} = await supabase
+  .from('users')
+  .select('*')
+  .update('password', blob['password'])
+  .eq('id', blob['Id']);
+  return {data}
 }
 
 async function deleteUserById(blob){
@@ -45,4 +53,4 @@ async function deleteUserById(blob){
   .eq('email', blob);
 }
 
-module.exports = {createUser, getUserByEmail,getUserById,updateUserById,deleteUserById};
+module.exports = {createUser, getUserByEmail, updateUserById, getUserById, updateUserPasswordById, deleteUserById};
