@@ -1,4 +1,4 @@
-const redi = require("redis");
+const redis = require("redis");
 const client = redis.createClient();
 await client.connect();
 
