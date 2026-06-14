@@ -9,11 +9,12 @@ function sleep(ms){
     setTimeout(resolve, ms));
 }
 
-function createJob(Id,url){
+function createJob(Id,url,active){
   await client.hSet(
     `monitor:${Id}`,
     {
-      link:url
+      link:url,
+      active:active
     }
   );
   await client.zAdd(
@@ -44,7 +45,7 @@ async function processMonitor(id, now){
     const monitor = await client.hGetAll(
       `monitor:${id}`
     );
-    if(!monitor.link){
+    if(!monitor.link && !monitor.active){
       return;
     }
     await ping(url=monitor.link, id=monitor.id);

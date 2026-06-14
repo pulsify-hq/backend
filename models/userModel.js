@@ -33,7 +33,7 @@ async function updateUserById(blob){
   .from('users')
   .select('*')
   .update({'email', blob['email'], 'name', blob['name']})
-  .eq('id', blob['Id']);
+  .eq('id', blob['id']);
   return data
 }
 
@@ -50,7 +50,7 @@ async function deleteUserById(blob){
   const {data,err} = await supabase
   .from('users')
   .delete()
-  .eq('email', blob);
+  .eq('id', blob['id']);
 }
 
 module.exports = {createUser, getUserByEmail, updateUserById, getUserById, updateUserPasswordById, deleteUserById};

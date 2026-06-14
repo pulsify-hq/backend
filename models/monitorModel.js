@@ -16,9 +16,9 @@ async function updateMonitorById(blob){
   const {data,err} = await supabase
   .from('monitors')
   .select('*')
-  .update({'name', blob['email'],
+  .update({'name', blob['name'],
     'url', blob['url'], 'active', blob['active']})
-  .eq('id', blob['Id']);
+  .eq('id', blob['id']);
   return data
 }
 
@@ -43,7 +43,7 @@ async function deleteMonitorById(blob){
   const {data,err} = await supabase
   .from('monitors')
   .delete()
-  .eq('id', blob);
+  .eq('id', blob['id']);
 }
 
 
