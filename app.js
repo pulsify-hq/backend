@@ -12,5 +12,10 @@ app.use("/auth", authRouter)
 app.use("/monitors", monitorRouter);
 app.use("/settings", settingRouter);
 app.delete("/account", authMiddleware, deleteAccount);
+app.use((req, res)=>{
+    req.statusCode(404).json({
+        message: "Page not found"
+    });
+})
 
 module.exports = app
