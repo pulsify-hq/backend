@@ -53,6 +53,17 @@ async function getAllMonitors(userId){
   }
 }
 
+async function getSingleMonitor(id){
+  const {data,err} = await supabase
+  .from('monitors')
+  .select('*')
+  .eq('id', id);
+  return {data}
+  if(err){
+    console.error(err);
+  }
+}
+
 function deleteMonitor(id){
   const {data,err} = await supabase
   .from('monitors')
@@ -78,4 +89,4 @@ function deleteAllUserMonitor(userId){
 }
 
 
-module.exports = {createMonitor, updateMonitor, getAllMonitors, deleteMonitor, deleteAllUserMonitor, updateMonitorStatusById};
+module.exports = {createMonitor, updateMonitor, getAllMonitors, deleteMonitor, deleteAllUserMonitor, updateMonitorStatusById, getSingleMonitor};
