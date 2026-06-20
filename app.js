@@ -16,6 +16,6 @@ app.use((req, res)=>{
     req.statusCode(404).json({
         message: "Page not found"
     });
-})
+});
 
 module.exports = app
