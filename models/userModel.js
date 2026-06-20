@@ -1,56 +1,73 @@
-const supabase = require('./db');
+const deleteAllUserMonitor = require('/monitorModel');
+const supabase = require('./utils/db');
 
-async function createUser(name,email,password){
+async function create(userName,email,hashPassword){
   const {data,err} = await supabase
   .from('users')
   .insert([
-    {name:name, email:email, password:password}
+    {name:userName, email:email, password:hashPassword}
   ]);
-  return {data.id}
+  return {data}
   if(err){
     console.error(err)
   }
 }
 
-async function getUserByEmail(blob){
+async function findByEmail(email){
   const {data,err} = await supabase
   .from('users')
   .select('*')
-  .eq('email', blob);
+  .eq('email', email);
   return {data}
+  if(err){
+    console.error(err);
+  }
 }
 
-async function getUserById(blob){
+async function getUserById(id){
   const {data,err} = await supabase
   .from('users')
   .select('*')
-  .eq('id', blob['id']);
+  .eq('id', id);
   return {data}
+  if(err){
+    console.error(err);
+  }
 }
 
-async function updateUserById(blob){
+async function updateUserById(id, name, email){
   const {data,err} = await supabase
   .from('users')
   .select('*')
-  .update({'email', blob['email'], 'name', blob['name']})
-  .eq('id', blob['id']);
-  return data
-}
-
-async function updateUserPasswordById(blob){
-  const {data,err} = await supabase
-  .from('users')
-  .select('*')
-  .update('password', blob['password'])
-  .eq('id', blob['Id']);
+  .update({'email', email}, {'name', name})
+  .eq('id', id);
   return {data}
+  if(err){
+    console.error(err);
+  }
 }
 
-async function deleteUserById(blob){
+async function resetPassword(email, hashPassword){
+  const {data,err} = await supabase
+  .from('users')
+  .select('*')
+  .update('password', hashPassword)
+  .eq('email', email);
+  return {data}
+  if(err){
+    console.error(err);
+  }
+}
+
+async function deleteUserById(id){
   const {data,err} = await supabase
   .from('users')
   .delete()
-  .eq('id', blob['id']);
+  .eq('id', id);
+  deleteAllUserMonitor(userId);
+  if(err){
+    console.error(err);
+  }
 }
 
-module.exports = {createUser, getUserByEmail, updateUserById, getUserById, updateUserPasswordById, deleteUserById};
+module.exports = {create, findByEmail, updateUserById, getUserById, resetPassword, deleteUserById};

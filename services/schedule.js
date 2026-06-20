@@ -9,9 +9,42 @@ function sleep(ms){
     setTimeout(resolve, ms));
 }
 
-function createJob(Id,url,active){
+function deleteJob(id):
+  const key = 'monitor:${id}';
+  const data = await redis.hGetAll(key);
+  if(!data){
+    return None
+  }else{
+    redis.expire(key, 0.05);
+  }
+ 
+function deleteAllUserJobs(id_file):
+  for (id in id_file){
+    const key = 'monitor:${id}';
+    const data = await redis.hGetAll(key);
+    if(!data){
+      return None
+    }else{
+      redis.expire(key, 0.05);
+    } 
+  }
+
+async function updateJob(url,active,id){
+  await checker();
+  const key = 'monitor:${id}';
+  const data = await redis.hGetAll(key);
+  if(!data){
+    return {"key doesn't exist"}
+  }else{
+    link: url,
+    active:active
+  }
+  return {'update successful'}
+}
+
+function createJob(id,url,active){
   await client.hSet(
-    `monitor:${Id}`,
+    `monitor:${id}`,
     {
       link:url,
       active:active
@@ -20,8 +53,8 @@ function createJob(Id,url,active){
   await client.zAdd(
     'schedule',
     [{
-      score: Math.floor(Date.now(/1000 + timer,)),
-      value: Id
+      score: Math.floor(Date.now(/1000 + timer)),
+      value: id
     }]
   );
 }
@@ -49,7 +82,7 @@ async function processMonitor(id, now){
       return;
     }
     await ping(url=monitor.link, id=monitor.id);
-    const nextRun = now + timer;
+    const nextRun = now + monitor.timer;
     await client.zAdd(
       'schedule',
       [{
