@@ -19,13 +19,13 @@ async function requestOtp (req, res){
 
     const user = await findByEmail(email);
 
-    // if(!user){
-    //     res.status(401).json({
-    //         message: "Invalid credentials"
-    //     });
+     if(!user){
+         res.status(401).json({
+             message: "Invalid credentials"
+         });
 
-    //     return;
-    // }
+         return;
+     }
 
     // Checks if otp has already been sent and deletes it before sending a new one
     if(otpStorage.has(email)){
