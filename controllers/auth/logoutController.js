@@ -26,7 +26,7 @@ async function logOut(req, res) {
         res.status(500).json({
             message: "Internal server error"
         })
-        console.error(`Error Loggig out, ${e.message}`)
+        console.error(`Error Logging out, ${e.message}`)
     }
 }
 

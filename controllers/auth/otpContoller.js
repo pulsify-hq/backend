@@ -1,7 +1,8 @@
 const { otpStorage, verifiedEmail} = require("../../stores/otpStore");
 const crypto = require("crypto");
 const { findByEmail } = require("../../models/userModel");
-
+const sendEmail = require("../../services/sendMail");
+const otpTemplate = require("../../services/templates/otpTemplate");
 
 async function requestOtp (req, res){
 
@@ -18,13 +19,13 @@ async function requestOtp (req, res){
 
     const user = await findByEmail(email);
 
-    if(!user){
-        res.status(401).json({
-            message: "Invalid credentials"
-        });
+     if(!user){
+         res.status(401).json({
+             message: "Invalid credentials"
+         });
 
-        return;
-    }
+         return;
+     }
 
     // Checks if otp has already been sent and deletes it before sending a new one
     if(otpStorage.has(email)){
@@ -39,6 +40,7 @@ async function requestOtp (req, res){
         otpStorage.delete(email);
     }, 5 * 60 * 1000) //Deletes Otp in 5mins
 
+    await sendEmail(email, "Your Login Verification Code", otpTemplate(otp))
 
     res.status(200).json({
         message: "Otp Sent via email"

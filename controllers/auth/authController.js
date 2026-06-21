@@ -1,7 +1,10 @@
 const bcrypt = require("bcrypt");
-const { create, findByEmail } = require("../models/userModel");
+const { create, findByEmail } = require("../../models/userModel");
 const { sign }= require("jsonwebtoken");
-const secret = process.env.JWT_SECRET
+const secret = process.env.JWT_SECRET;
+const sendEmail = require("../../services/sendMail");
+const loginTemplate = require("../../services/templates/loginTemplate");
+
 
 const signUp = async(req, res) =>{
 
@@ -87,10 +90,11 @@ if(!email || !password){
         username: user.name,
     }, secret, {expiresIn: "1h"});
 
+     sendEmail(email, "New Login Detected", loginTemplate());
     res.status(200).json({
         message: "Login successful",
         token
-    })
+    });
    
     } catch (e) {
         res.status(500).json({
