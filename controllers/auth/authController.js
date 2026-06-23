@@ -54,55 +54,65 @@ secret,
 }
 
 // Login
-
-const login = async (req, res)=>{
-    
+const login = async (req, res) => {
     try {
-     
-const { email, password } = req.body;
+        const { email, password } = req.body;
 
-if(!email || !password){
-    res.status(400).json({
-        message: "Required field missing"
-    });
-    return;
-}
-    const user = await findByEmail(email)
+        if (!email || !password) {
+            res.status(400).json({ message: "Required field missing" });
+            return;
+        }
 
-    if(!user){
-        res.status(401).json({
-            message: "Invalid credentials"
-        });
-        return;
+        const user = await findByEmail(email);
+
+        if (!user) {
+            res.status(401).json({ message: "Invalid credentials" });
+            return;
+        }
+
+        const isMatched = await bcrypt.compare(password, user.hashPassword);
+        if (!isMatched) {
+            res.status(401).json({ message: "Invalid credentials" });
+            return;
+        }
+
+        const token = sign(
+            { id: user.id, username: user.name },
+            secret,
+            { expiresIn: "1h" }
+        );
+
+        const loginTime = new Date().toLocaleString("en-US", { timeZone: "UTC" }) + " UTC";
+        const device = req.headers["user-agent"] || "Unknown device";
+        const ipAddress = req.ip || req.headers["x-forwarded-for"] || "Unknown";
+        
+        let location = "Unknown";
+
+    try {
+        const geoRes = await fetch(`https://ipapi.co/${ipAddress}/json/`);
+        const geoData = await geoRes.json();
+        location = `${geoData.city}, ${geoData.country_name}`;
+    } catch {
+        // geolocation failed, location stays "Unknown"
     }
 
-    const isMatched = await bcrypt.compare(password, user.hashPassword);
-    if(!isMatched){
-
-        res.status(401).json({
-            message: "Invalid credentials"
+        sendEmail(email, "New Login Detected", loginTemplate({
+            loginTime,
+            device,
+            ipAddress,
+            location,
+        })).catch((err) => {
+            console.error("Login email failed to send:", err.message);
         });
-        return;
-    }
 
-    const token = sign({
-        id: user.id,
-        username: user.name,
-    }, secret, {expiresIn: "1h"});
+        res.status(200).json({
+            message: "Login successful",
+            token,
+        });
 
-     sendEmail(email, "New Login Detected", loginTemplate());
-    res.status(200).json({
-        message: "Login successful",
-        token
-    });
-   
     } catch (e) {
-        res.status(500).json({
-            message: "Internal server error"
-        });
-
-        console.error("Error logging in:", e.message)
+        res.status(500).json({ message: "Internal server error" });
+        console.error("Error logging in:", e.message);
     }
-}
-
+};
 module.exports = {signUp, login}
