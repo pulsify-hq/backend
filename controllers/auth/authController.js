@@ -84,7 +84,9 @@ const login = async (req, res) => {
 
         const loginTime = new Date().toLocaleString("en-US", { timeZone: "UTC" }) + " UTC";
         const device = req.headers["user-agent"] || "Unknown device";
-        const ipAddress = req.ip || req.headers["x-forwarded-for"] || "Unknown";let location = "Unknown";
+        const ipAddress = req.ip || req.headers["x-forwarded-for"] || "Unknown";
+        
+        let location = "Unknown";
 
     try {
         const geoRes = await fetch(`https://ipapi.co/${ipAddress}/json/`);
