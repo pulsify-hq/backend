@@ -1,6 +1,6 @@
 const redis = require("redis");
 const client = redis.createClient();
-await client.connect();
+client.connect();
 
 const timer = 600;
 
@@ -9,40 +9,44 @@ function sleep(ms){
     setTimeout(resolve, ms));
 }
 
-function deleteJob(id):
+async function deleteJob(id){
   const key = 'monitor:${id}';
   const data = await redis.hGetAll(key);
   if(!data){
     return None
   }else{
-    redis.expire(key, 0.05);
+    redis.expire(key, 0.01);
   }
+}
  
-function deleteAllUserJobs(id_file):
+async function deleteAllUserJobs(id_file){
   for (id in id_file){
     const key = 'monitor:${id}';
     const data = await redis.hGetAll(key);
     if(!data){
       return None
     }else{
-      redis.expire(key, 0.05);
+      redis.expire(key, 0.01);
     } 
   }
+} 
 
 async function updateJob(url,active,id){
   await checker();
-  const key = 'monitor:${id}';
+  const key = `monitor:${id}`;
   const data = await redis.hGetAll(key);
   if(!data){
-    return {"key doesn't exist"}
+    return {message:"key doesn't exist"}
   }else{
-    link: url,
-    active:active
+    await redis.hSet(key, {
+      link: url,
+    active: active
+    });
   }
-  return {'update successful'}
+  return {message:'update successful'}
 }
 
-function createJob(id,url,active){
+async function createJob(id,url,active){
   await client.hSet(
     `monitor:${id}`,
     {
@@ -53,7 +57,7 @@ function createJob(id,url,active){
   await client.zAdd(
     'schedule',
     [{
-      score: Math.floor(Date.now(/1000 + timer)),
+      score: Math.floor((Date.now()/1000) + timer),
       value: id
     }]
   );
@@ -86,7 +90,7 @@ async function processMonitor(id, now){
     await client.zAdd(
       'schedule',
       [{
-        score: nextRun'
+        score: nextRun,
         value: id
       }]
     );
@@ -111,7 +115,7 @@ async function scheduler(){
     await sleep(2000);
   }
 }
-scheduler():
+scheduler();
 
 
 

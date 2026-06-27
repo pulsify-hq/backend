@@ -1,72 +1,78 @@
-const deleteAllUserMonitor = require('/monitorModel');
-const supabase = require('./utils/db');
+const deleteAllUserMonitor = require('./monitorModel');
+const supabase = require('../utils/db');
 
 async function create(userName,email,hashPassword){
-  const {data,err} = await supabase
+  const {data,error} = await supabase
   .from('users')
   .insert([
     {name:userName, email:email, password:hashPassword}
-  ]);
-  return {data}
-  if(err){
-    console.error(err)
+  ])
+  .select();
+  if(error){
+    console.error(error);
+    throw error;
   }
+  return data;
 }
 
 async function findByEmail(email){
-  const {data,err} = await supabase
+  const {data,error} = await supabase
   .from('users')
   .select('*')
   .eq('email', email);
-  return {data}
-  if(err){
-    console.error(err);
+  if(error){
+    console.error(error);
+    throw error;
   }
+  return data;
 }
 
 async function getUserById(id){
-  const {data,err} = await supabase
+  const {data,error} = await supabase
   .from('users')
   .select('*')
   .eq('id', id);
-  return {data}
-  if(err){
-    console.error(err);
+  if(error){
+    console.log("No id found")
+    console.error(error);
+    throw error;
   }
+  return data;
 }
 
 async function updateUserById(id, name, email){
-  const {data,err} = await supabase
+  const {data,error} = await supabase
   .from('users')
-  .select('*')
-  .update({'email', email}, {'name', name})
-  .eq('id', id);
-  return {data}
-  if(err){
-    console.error(err);
+  .update({email, name})
+  .eq('id', id)
+  .select();
+  if(error){
+    console.error(error);
   }
+  return data;
 }
 
 async function resetPassword(email, hashPassword){
-  const {data,err} = await supabase
+  const {data,error} = await supabase
   .from('users')
-  .select('*')
-  .update('password', hashPassword)
-  .eq('email', email);
-  return {data}
-  if(err){
-    console.error(err);
+  .update({password: hashPassword})
+  .eq('email', email)
+  .select();
+  if(error){
+    console.error(error);
+    throw error;
   }
+  return data;
 }
 
 async function deleteUserById(id){
-  const {data,err} = await supabase
+  const {data,error} = await supabase
   .from('users')
   .delete()
   .eq('id', id);
   deleteAllUserMonitor(userId);
-  if(err){
-    console.error(err);
+  if(error){
+    console.error(error);
   }
 }
 

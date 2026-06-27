@@ -1,19 +1,24 @@
-const updateMonitorStatusById = require('./models/monitorModel');
+const updateMonitorStatusById = require('../models/monitorModel');
+const getUserEmailFromMonitor = require('../models/monitorModel');
+const pingFailureTemplate = require('./templates/pingFailureTemplate');
+const sendMail = require('.sendMail');
 
 function ping(url,id){
   try{
-    let start = Date.now()
+    let start = performance.now()
     const res = await fetch(url);
     const result = await res.json();
-    let stop = date.now();
+    let stop = performance.now();
     let responseTime = stop - start;
-    if (result['active'].toLower() === 'True'){
-      let report =  'server active';
-    }if(responseTime > 2000){
-      let report =  'server slept';
-    }if(result['active'].toLower() === 'True'){
-      let report =  'server inactive';
+    if(responseTime > 1000){
+      let report =  'inactive';
+    }else{
+      let report =  'active';
     }
+    let userEmail = getUserEmailFromMonitor(id);
+    html = pingFailureTemplate(url);
+    await sendMail(to=userEmail , subjecthtml=html);
+    
     blob = {
       'id':id,
       'report':report,
@@ -22,6 +27,6 @@ function ping(url,id){
     };
     updateMonitorStatusById(blob)
   } catch(err){
-    err
+    console.error(err);
   }
 }
