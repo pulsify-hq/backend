@@ -12,12 +12,12 @@ function ping(url,id){
     let responseTime = stop - start;
     if(responseTime > 1000){
       let report =  'inactive';
+      let userEmail = getUserEmailFromMonitor(id);
+    html = pingFailureTemplate(url);
+    await sendMail(to=userEmail , subjecthtml=html);
     }else{
       let report =  'active';
     }
-    let userEmail = getUserEmailFromMonitor(id);
-    html = pingFailureTemplate(url);
-    await sendMail(to=userEmail , subjecthtml=html);
     
     blob = {
       'id':id,
