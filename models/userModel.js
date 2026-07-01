@@ -70,7 +70,7 @@ async function deleteUserById(id){
   .from('users')
   .delete()
   .eq('id', id);
-  deleteAllUserMonitor(userId);
+  deleteAllUserMonitor(id);
   if(error){
     console.error(error);
   }
